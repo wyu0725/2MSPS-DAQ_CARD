@@ -2,3 +2,4 @@
 2.在Quartus II 里选择Tools->Tcl Scripts
 3.弹出的窗口中找到.tcl文件
 4.点击run
+5.下Pin Planner中可以看到分配的管脚
