@@ -1,0 +1,4 @@
+1.将.tcl文件复制到工程目录下
+2.在Quartus II 里选择Tools->Tcl Scripts
+3.弹出的窗口中找到.tcl文件
+4.点击run
