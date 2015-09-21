@@ -52,16 +52,18 @@ module ADC_AD7985_Control #(parameter DATA_WIDTH = 16)
 	output reg Dataout_en
 );
 assign TURBIO = 1'b0;//normal mode
-assign SCK = ~clk;   //
 reg [4:0] sdo_cnt;
 reg [5:0] cnt;
+reg SCK_en;
+assign SCK = ~clk & SCK_en;   //modified
 //counter defined
-localparam Tconv = 6'd4;
-localparam Tcompensation = 6'd5;
+localparam Tconv = 6'd3;
+localparam Tcompensation = 6'd4;
 localparam [1:0] T_CONVERSION = 2'b00,
 					  T_ACQUISION  = 2'b01,
 					  T_COMPENSATION = 2'b10;
 reg [1:0] State;
+//Tcycle = 3 + 1 + 15 + 1 + 4 + 1 = 25
 always @ (posedge clk , negedge reset_n) begin
 	if(~reset_n) begin
 		Dataout <= 16'b0;
@@ -69,21 +71,12 @@ always @ (posedge clk , negedge reset_n) begin
 		CNV <= 1'b1;
 		sdo_cnt <= 5'b0;
 		cnt <= 6'b0;
+    SCK_en <= 1'b0;
 		State <= T_CONVERSION;
 	end
 	else begin
 		case(State)
-			/*
-			Idle:begin //1
-				if(!iRunStart)
-					State <= Idle;
-				else begin
-					CNV <= 1'b1; // a rising edge on CNV initial a conversion, selects \CS mode, and force SDO to high impedance.
-					State <= T_CONVERSION;
-				end
-			end
-			*/
-			T_CONVERSION:begin //4
+			T_CONVERSION:begin //3
 				if(!iRunStart)
 					State <= T_CONVERSION;
 				else if(cnt < Tconv) begin
@@ -93,30 +86,32 @@ always @ (posedge clk , negedge reset_n) begin
 				else begin
 					cnt <= 6'd0;
 					CNV <= 1'b0;
+          SCK_en <= 1'b1;
 					State <= T_ACQUISION;
 				end
 			end
 			T_ACQUISION:begin //16
-				if(sdo_cnt < DATA_WIDTH) begin
-					Dataout[DATA_WIDTH - cnt] <= SDO;
-					sdo_cnt <= sdo_cnt + 1'b1;
+        Dataout[DATA_WIDTH - 1 - sdo_cnt] <= SDO;//Modified
+				if(sdo_cnt < DATA_WIDTH-1) begin
+          sdo_cnt <= sdo_cnt + 1'b1;							
 					State <= T_ACQUISION;
 				end
 				else begin
 					sdo_cnt <= 5'b0;
+          SCK_en <= 1'b0;
 					Dataout_en <= 1'b1;
 					State <= T_COMPENSATION;
 				end
 			end
-			T_COMPENSATION:begin //5
-				Data_en <= 1'b0;
+			T_COMPENSATION:begin //4
+				Dataout_en <= 1'b0;
 				if(cnt < Tcompensation) begin
 					cnt <= cnt + 1'b1;
 					State <= T_COMPENSATION;
 				end
 				else begin
 					cnt <= 6'd0;
-					CNV <= 1'b1;					
+					CNV <= 1'b1;	
 					State <= T_CONVERSION;
 				end
 			end
@@ -147,10 +142,5 @@ always @ (posedge clk , negedge reset_n) begin
 		cyc_counter <= cyc_counter + 1'b1;
 end
 */
-//fsm for data output
-//assign TURBIO = 1'b0; //normal mode 2Msps
-//assign SCK = SCK_en & clk;
-//reg [15:0] Dataout;
-//reg SCK_en;
-//reg Data_en;
+
 
