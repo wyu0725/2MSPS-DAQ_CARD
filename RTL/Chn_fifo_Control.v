@@ -116,17 +116,38 @@ always @ (posedge clk , negedge reset_n) begin
   end
   else begin
     case(State)
-      IDLE:
-        fifo_raed_cnt <= 10'b0;
+      IDLE:begin
+        fifo_read_cnt <= 10'b0;
         State <= CHECK;
-      CHECK:begin
-        if(fifo_usedw > fifo_read_num) begin
-
       end
+      CHECK:begin
+        if(fifo_usedw > fifo_read_num-1) begin
+          fifo_rdreq <= 1'b1;//发出读的信号
+          fifo_read_cnt <= 1'b0;
+          State <= WAIT;
+        end
+        else State <= CHECK;
+      end
+      WAIT:State <= READ;//等待一周期，使得fifo_rdreq信号到达rdreq
+      READ:begin
+        if(fifo_read_cnt < fifo_read_num)begin
+          out_to_usb_ext_fifo_en <= 1'b1;
+          out_to_usb_ext_fifo_din <= fifo_buffer;
+          fifo_read_cnt <= fifo_read_cnt + 1'b1;
+        end
+        else begin
+          out_to_usb_ext_fifo_en <= 1'b0;
+          fifo_rdreq <= 1'b0;
+          fifo_read_cnt <= 10'd0;
+          State <= WAIT_DONE;
+        end
+      end
+      WAIT_DONE:State <= DONE;
+      DONE:begin
+        Select_State <= ~Select_State;
+        State <= CHECK;
+      end
+      default:State <= IDLE;
   end
-
-
 end
-
-
 endmodule
