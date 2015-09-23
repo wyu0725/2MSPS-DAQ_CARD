@@ -54,13 +54,13 @@ always @ (posedge clk , negedge reset_n) begin
     chn1_fifo_empty = 1'b0;
     chn1_fifo_full = 1'b0;
     chn1_rdreq = 1'b0;
-    [15:0] chn1_out_to_usb_fifo = 16'h0;
-    [10:0] chn1_usedw = 11'b000_0000_0000;
+    chn1_out_to_usb_fifo = 16'h0;
+    chn1_usedw = 11'b000_0000_0000;
     chn2_fifo_empty = 1'b0;
     chn2_fifo_full = 1'b0;
     chn2_rdreq = 1'b0;
-    [15:0] chn2_out_to_usb_fifo = 16'h0000;
-    [10:0] chn2_usedw = 11'b000_0000_0000;
+    chn2_out_to_usb_fifo = 16'h0000;
+    chn2_usedw = 11'b000_0000_0000;
   end
 end 
 //选择读取哪一个FIFO的数据，每次读完一个FIFO后就读另外一个FIFO
