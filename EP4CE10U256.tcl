@@ -11,7 +11,7 @@
 #set_location_assignment PIN_A11 -to A_A[11]
 #set_location_assignment PIN_B11 -to A_A[12]
 #set_location_assignment PIN_C11 -to SD[3]
-set_location_assignment PIN_F9 -to TRG_IN
+#set_location_assignment PIN_F9 -to TRG_IN
 #set_location_assignment PIN_A15 -to SD[11]
 #set_location_assignment PIN_A10 -to I/O_A[0]
 #set_location_assignment PIN_C9 -to SD[6]
@@ -59,7 +59,7 @@ set_location_assignment PIN_K15 -to FD[3]
 #set_location_assignment PIN_J16 -to NCS
 set_location_assignment PIN_J15 -to NRESET
 #set_location_assignment PIN_J14 -to SD[7]
-set_location_assignment PIN_J12 -to TRG_OUT
+#set_location_assignment PIN_J12 -to TRG_OUT
 #set_location_assignment PIN_J13 -to NWR
 set_location_assignment PIN_M16 -to CLKOUT
 set_location_assignment PIN_M15 -to IFCLK
