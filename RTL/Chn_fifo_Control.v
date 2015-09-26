@@ -30,7 +30,7 @@ wire chn1_fifo_empty;
 wire chn1_fifo_full;
 reg chn1_fifo_rdreq;
 wire [15:0] chn1_out_to_usb_fifo;
-wire [10:0] chn1_fifo_usedw;
+//wire [10:0] chn1_fifo_usedw;
 sync_fifo chn1_fifo
 (
 	.aclr(~reset_n | rst_all_fifo),
@@ -40,15 +40,15 @@ sync_fifo chn1_fifo
 	.empty(chn1_fifo_empty),
 	.full(chn1_fifo_full),
 	.rdreq(chn1_fifo_rdreq),  
-	.q(chn1_out_to_usb_fifo),
-	.usedw(chn1_fifo_usedw) //no use
+	.q(chn1_out_to_usb_fifo)
+	//.usedw(chn1_fifo_usedw) //no use
 );
 /*--------Channel2 fifo instantiation-------*/
 wire chn2_fifo_empty;
 wire chn2_fifo_full;
 reg chn2_fifo_rdreq;
 wire [15:0] chn2_out_to_usb_fifo;
-wire [10:0] chn2_fifo_usedw;
+//wire [10:0] chn2_fifo_usedw;
 sync_fifo chn2_fifo
 (
 	.aclr(~reset_n | rst_all_fifo),
@@ -58,8 +58,8 @@ sync_fifo chn2_fifo
 	.empty(chn2_fifo_empty),
 	.full(chn2_fifo_full),
 	.rdreq(chn2_fifo_rdreq),  
-	.q(chn2_out_to_usb_fifo),
-	.usedw(chn2_fifo_usedw) //no use
+	.q(chn2_out_to_usb_fifo)
+	//.usedw(chn2_fifo_usedw) //no use
 );
 /*-------------------------------------------------*/
 localparam NO_CHANNELS = 2'b00;

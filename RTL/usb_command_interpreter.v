@@ -25,29 +25,29 @@ module usb_command_interpreter(
       /*--------USB interface------------*/
       input in_from_usb_Ctr_rd_en,
       input [15:0] in_from_usb_ControlWord,
-      //output reg out_to_usb_Acq_Start_Stop,
-      output reg [1:0] out_to_ADC_chn_Select, 
+		
+      output reg [1:0] Channel_Select,
       /*-------clear usb fifo------------*/
-      output reg out_to_rst_usb_data_fifo, //asynchronized reset
+      output reg out_to_rst_all_fifo, //asynchronized reset
       /*-------LED test------------------*/
-      output reg [4:0] LED
+      output reg [3:0] LED
     );
 wire [15:0] USB_COMMAND;
 reg fifo_rden;
 wire fifo_empty;
 //wire fifo_full;
-usb_commad_fifo usbcmdfifo_16depth (
-  .rst(~reset_n),                // input rst
-  .wr_clk(~IFCLK),                // input wr_clk
-  .rd_clk(~clk),                  // input rd_clk
-  .din(in_from_usb_ControlWord), // input [15 : 0] din
-  .wr_en(in_from_usb_Ctr_rd_en), // input wr_en
-  .rd_en(fifo_rden),             // input rd_en
-  .dout(USB_COMMAND),            // output [15 : 0] dout
-  //.full(fifo_full),              // output full
-  .full(),
-  .empty(fifo_empty)             // output empty
+usb_cmd_fifo usbcmdfifo_16depth (
+  	.aclr(~reset_n),
+	.wrclk(~IFCLK),
+	.wrreq(in_from_usb_Ctr_rd_en),
+	.data(in_from_usb_ControlWord),	
+	.rdclk(~clk),
+	.rdreq(fifo_rden),
+	.q(USB_COMMAND),
+	.rdempty(fifo_empty),
+	.wrfull()
 );
+//read process
 localparam Idle = 1'b0;
 localparam READ = 1'b1;
 reg State;
@@ -75,37 +75,37 @@ always @ (posedge clk , negedge reset_n) begin
   end
 end
 //command process
-//acq start or stop f0f0,f0f1
+//ADC channel select
 always @ (posedge clk , negedge reset_n) begin
-  if(~reset_n)
-    out_to_usb_Acq_Start_Stop <= 1'b0;
-  else if(fifo_rden && USB_COMMAND[15:4] == 12'hf0f)begin
-    out_to_ADC_chn_Select <= USB_COMMAND[1:0];
-    LED[1:0] <= ~USB_COMMAND[1:0];//暂时先不用灯，等USB测试好了再用灯
-  end
-  /*else if(fifo_rden && USB_COMMAND == 16'hf0f1)
-    out_to_usb_Acq_Start_Stop <= 1'b0;*/
-  else
-    out_to_usb_Acq_Start_Stop <= out_to_usb_Acq_Start_Stop;
+	if(~reset_n) 
+		Channel_Select <= 2'b00;
+	else if(fifo_rden && USB_COMMAND == 16'hf000)
+		Channel_Select <= 2'b00; //turn off all channels
+	else if(fifo_rden && USB_COMMAND == 16'hf001)
+		Channel_Select <= 2'b01; //only select channel 1
+	else if(fifo_rden && USB_COMMAND == 16'hf002)
+		Channel_Select <= 2'b10; //only select channel 2
+	else if(fifo_rden && USB_COMMAND == 16'hf003)
+		Channel_Select <= 2'b11; //select all channels
+	else
+		Channel_Select <= Channel_Select;
 end
-//clear usb data fifo a0f0
+//clear all fifo
 always @ (posedge clk , negedge reset_n) begin
   if(~reset_n)
-    out_to_rst_usb_data_fifo <= 1'b0;
-  else if(fifo_rden && USB_COMMAND == 16'ha0f0)
-    out_to_rst_usb_data_fifo <= 1'b1;
+    out_to_rst_all_fifo <= 1'b0;
+  else if(fifo_rden && USB_COMMAND == 16'hA000)
+    out_to_rst_all_fifo <= 1'b1;
   else
-    out_to_rst_usb_data_fifo <= 1'b0;
+    out_to_rst_all_fifo <= 1'b0;
 end
 //led interface
 always @ (posedge clk , negedge reset_n) begin
   if(~reset_n)
-    LED[4:2] <= 3'b111;
+    LED <= 4'b1111;
   else if(fifo_rden && USB_COMMAND[15:4] == 12'hB00)
-    LED[4:2] <= USB_COMMAND[2:0];
+    LED <= USB_COMMAND[3:0];
   else
-    LED[4:2] <= LED[4:2];
+    LED <= LED;
 end
-
-
 endmodule

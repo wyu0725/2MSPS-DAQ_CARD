@@ -80,13 +80,6 @@ module usb_synchronous_slavefifo(
           nSLRD <= 1'b1;
           READ_State <= READ_CHECK;
         end
-        /*
-        READ_DONE:begin
-          Ctr_rd_en <= 1'b0;
-          ControlWord <= 16'b0;
-          READ_State <= READ_CHECK;
-        end
-        */
         default:
           READ_State <= READ_IDLE;
       endcase
@@ -137,9 +130,7 @@ module usb_synchronous_slavefifo(
         end
         WR_STEP1:begin //drive data on the bus
           out_to_ext_fifo_rd_en <= 1'b0;
-          //FD_BUS_OUT <= in_from_ext_fifo_dout;
           FD_BUS_OUT <= Swap(in_from_ext_fifo_dout);
-          //FD_BUS_OUT <= {in_from_ext_fifo_dout[7:0],in_from_ext_fifo_dout[15:8]};
           nSLWR  <= 1'b0;//assert SLWR
           WRITE_State <= WR_STEP2;
         end
