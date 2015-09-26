@@ -101,22 +101,29 @@ Chn_fifo_Control FIFO_Control
   .out_to_usb_ext_fifo_en(out_to_usb_ext_fifo_en)
 );
 /*------usb synchronous slavefifo control------*/
+//usb command
+wire out_to_usb_Acq_Start_Stop;
+wire in_from_usb_Ctr_rd_en;
+wire [15:0] in_from_usb_ControlWord;
+//usb fifo
+wire [15:0] usb_data_fifo_dout;
+
 usb_synchronous_slavefifo Cy7c68013A_slavefifo
 (
-  .IFCLK(),
-  .FLAGA(),
-  .FLAGB(),
-  .FLAGC(),
-  .nSLCS(),
-  .nSLOE(),
-  .nSLRD(),
-  .nPKTEND(),
-  .FIFOADR(),
-  .FD_BUS(),
+  .IFCLK(IFCLK),
+  .FLAGA(FLAGA),
+  .FLAGB(FLAGB),
+  .FLAGC(FLAGC),
+  .nSLCS(FLAGD),
+  .nSLOE(nSLOE),
+  .nSLRD(nSLRD),
+  .nPKTEND(nPKTEND),
+  .FIFOADR(FIFOADR),
+  .FD_BUS(FD_BUS),
   //interface with control
-  .Acq_Start_Stop(),
-  .Ctr_rd_en(),
-  .ControlWord(),
+  .Acq_Start_Stop(out_to_usb_Acq_Start_Stop),
+  .Ctr_rd_en(in_from_usb_Ctr_rd_en),
+  .ControlWord(in_from_usb_ControlWord),
   //interface with external fifo
   .in_from_ext_fifo_dout(),
   .infrom_ext_fifo_empty(),
@@ -126,13 +133,13 @@ usb_synchronous_slavefifo Cy7c68013A_slavefifo
 /*------usb command process------*/
 usb_command_interpreter CCC
 (
-  .IFCLK(),
-  .clk(),
-  .reset_n(),
-  .in_from_usb_Ctr_rd_en(),
-  .in_from_usb_ControlWord(),
-  .out_to_usb_Acq_Start(),
+  .IFCLK(IFCLK),
+  .clk(clk),
+  .reset_n(reset_n),
+  .in_from_usb_Ctr_rd_en(in_from_usb_Ctr_rd_en),
+  .in_from_usb_ControlWord(in_from_usb_ControlWord),
+  .out_to_usb_Acq_Start(out_to_usb_Acq_Start_Stop),
   .out_to_rst_usb_data_fifo(),
-  .LED()
+  .LED(LED)
 );
 endmodule

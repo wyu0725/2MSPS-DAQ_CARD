@@ -79,16 +79,15 @@ end
 always @ (posedge clk , negedge reset_n) begin
   if(~reset_n)
     out_to_usb_Acq_Start_Stop <= 1'b0;
-  else
+  else if(fifo_rden && USB_COMMAND[15:4] == 12'hf0f)begin
     out_to_ADC_chn_Select <= USB_COMMAND[1:0];
-end
-  /*else if(fifo_rden && USB_COMMAND == 16'hf0f0)
-    out_to_usb_Acq_Start_Stop <= 1'b1;
-  else if(fifo_rden && USB_COMMAND == 16'hf0f1)
-    out_to_usb_Acq_Start_Stop <= 1'b0;
+    LED[1:0] <= ~USB_COMMAND[1:0];//暂时先不用灯，等USB测试好了再用灯
+  end
+  /*else if(fifo_rden && USB_COMMAND == 16'hf0f1)
+    out_to_usb_Acq_Start_Stop <= 1'b0;*/
   else
     out_to_usb_Acq_Start_Stop <= out_to_usb_Acq_Start_Stop;
-end*/
+end
 //clear usb data fifo a0f0
 always @ (posedge clk , negedge reset_n) begin
   if(~reset_n)
@@ -101,11 +100,11 @@ end
 //led interface
 always @ (posedge clk , negedge reset_n) begin
   if(~reset_n)
-    LED <= 4'b1111;
+    LED[4:2] <= 3'b111;
   else if(fifo_rden && USB_COMMAND[15:4] == 12'hB00)
-    LED <= USB_COMMAND[3:0];
+    LED[4:2] <= USB_COMMAND[2:0];
   else
-    LED <= LED;
+    LED[4:2] <= LED[4:2];
 end
 
 
