@@ -22,6 +22,8 @@ module Chn_fifo_Control
   input chn1_Dataout_en,
   input [15:0] chn2_Dataout,
   input chn2_Dataout_en,
+  output chn1_fifo_full_LED,
+  output chn2_fifo_full_LED,
   output reg [15:0] out_to_usb_ext_fifo_din,
   output reg out_to_usb_ext_fifo_en
 );
@@ -43,6 +45,7 @@ sync_fifo chn1_fifo
 	.q(chn1_out_to_usb_fifo)
 	//.usedw(chn1_fifo_usedw) //no use
 );
+assign chn1_fifo_full_LED = chn1_fifo_full;
 /*--------Channel2 fifo instantiation-------*/
 wire chn2_fifo_empty;
 wire chn2_fifo_full;
@@ -61,8 +64,9 @@ sync_fifo chn2_fifo
 	.q(chn2_out_to_usb_fifo)
 	//.usedw(chn2_fifo_usedw) //no use
 );
+assign chn2_fifo_full_LED = chn2_fifo_full;
 /*-------------------------------------------------*/
-localparam NO_CHANNELS = 2'b00;
+localparam NO_CHANNEL_Selected = 2'b00;
 localparam CHANNEL_1 = 2'b01;
 localparam CHANNEL_2 = 2'b10;
 localparam ALL_CHANNELS = 2'b11;
@@ -106,7 +110,7 @@ always @ (posedge clk , negedge reset_n) begin
       Idle:begin
         out_to_usb_ext_fifo_en <= 1'b0;
         case(Channel_Select)
-          NO_CHANNELS:State <= Idle;          //no channel selected,return to Idle
+          NO_CHANNEL_Selected:State <= Idle;          //no channel selected,return to Idle
           CHANNEL_1:State <= ONLY_CHANNEL1;   //only selected channel 1
           CHANNEL_2:State <= ONLY_CHANNEL2;   //only selected channel 2
           ALL_CHANNELS:State <= ALL_CHANNEL;  //all channels selected

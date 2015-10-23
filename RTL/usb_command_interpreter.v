@@ -37,7 +37,7 @@ reg fifo_rden;
 wire fifo_empty;
 //wire fifo_full;
 usb_cmd_fifo usbcmdfifo_16depth (
-  	.aclr(~reset_n),
+  .aclr(~reset_n),
 	.wrclk(~IFCLK),
 	.wrreq(in_from_usb_Ctr_rd_en),
 	.data(in_from_usb_ControlWord),	

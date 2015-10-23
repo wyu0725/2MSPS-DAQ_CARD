@@ -37,7 +37,7 @@ module usb_synchronous_slavefifo(
     /*----interface with external fifo---*/
     input [15:0] in_from_ext_fifo_dout,
     input in_from_ext_fifo_empty,
-    input [11:0] in_from_ext_fifo_rd_data_count,
+    input [13:0] in_from_ext_fifo_rd_data_count,//FIFO 16384*16
     output reg out_to_ext_fifo_rd_en
     );
     /*--------Chip select---------------*/
@@ -105,7 +105,10 @@ module usb_synchronous_slavefifo(
           nSLWR <= 1'b1;
           nPKTEND <= 1'b1;
           out_to_ext_fifo_rd_en <= 1'b0;
-          if(Acq_Start_Stop_sync2 && FLAGC && in_from_ext_fifo_rd_data_count >= 12'd256) //make sure usb is not in read mode and Acq start
+          
+          //if(Acq_Start_Stop_sync2 && FLAGC && in_from_ext_fifo_rd_data_count >= 14'd256) //make sure usb is not in read mode and Acq start
+            //usb_fifo读数大于256再开始读数是为什么？
+          if(Acq_Start_Stop_sync2 && FLAGC)//Modified by wyu 20151021
             WRITE_State <= WR_STATE;
           else
             WRITE_State <= WR_IDLE;
@@ -117,7 +120,7 @@ module usb_synchronous_slavefifo(
             else if(FLAGA) //if EP6 is empty return to idle
               WRITE_State <= WR_IDLE;
             else           //if EP6 is full,drive data on the bus,then turn to pktend
-              WRITE_State <= WR_IDLE;
+              WRITE_State <= WR_PKTEND;
           end
           else begin //normal acq is running
             if(!in_from_ext_fifo_empty && !FLAGB) begin//external fifo is not empty and EP6 is not full
